@@ -1,0 +1,99 @@
+<?php
+namespace Deployer;
+
+require 'recipe/laravel.php';
+
+// Project name
+set('application', 'vtsa-api');
+
+// Project repository
+set('repository', 'git@bitbucket.org:empat_tech/vtsa-api.git');
+
+// [Optional] Allocate tty for git clone. Default value is false.
+set('git_tty', true); 
+
+// Shared files/dirs between deploys 
+add('shared_files', []);
+add('shared_dirs', []);
+
+// Writable dirs by web server 
+add('writable_dirs', []);
+set('allow_anonymous_stats', false);
+
+// Hosts
+
+host('vtsa-dev')
+    ->set('deploy_path', '/var/www/{{application}}')
+    ->set('branch', 'dev')
+    ->multiplexing(true)
+    ->configFile('~/.ssh/config'); 
+    
+// Tasks
+
+desc('Migrate database');
+task('artisan:migrate:force', function() {
+    run('{{bin/php}} {{release_path}}/artisan migrate --force');
+});
+
+desc('Restart php-fpm');
+task('fpm:restart', function () {
+    run('sudo systemctl restart php8.1-fpm.service');
+});
+
+desc('Stop horizon supervisor');
+task('horizon:stop', function () {
+    $output = run('sudo supervisorctl stop horizon');
+
+    if($output === 'horizon: ERROR (not running)') {
+        writeln('<error>Horizon supervisor already stopped</error>');
+    } else {
+        writeln('<info>Successful stopped horizon supervisor</info>');
+    }
+});
+
+desc('Start horizon supervisor');
+task('horizon:start', function () {
+    $host = get('hostname');
+
+    $output = run('sudo supervisorctl start horizon');
+
+    if($output === 'horizon: ERROR (already started)') {
+        writeln('<error>Horizon supervisor already started</error>');
+    } else {
+        writeln('<info>Successful started horizon supervisor</info>');
+    }
+});
+
+desc('Restart horizon supervisor');
+task('horizon:restart', [
+    'horizon:stop',
+    'horizon:start'
+]);
+
+desc('Stop crontab task');
+task('crontab:stop', function () {
+    try {
+        $output = run('crontab -r');
+
+        writeln('<info>Successful stopped cron</info>');
+    } catch (\Deployer\Exception\RuntimeException $e) {
+        writeln('<error>Crontab already stopped</error>');
+    }
+});
+
+desc('Start crontab task');
+task('crontab:start', function () {
+    $output = run('crontab ~/crontask');
+
+    if($output === '') {
+        writeln('<info>Successful started cron</info>');
+    }
+});
+
+// [Optional] if deploy fails automatically unlock.
+before('deploy:prepare', 'crontab:stop');
+before('deploy:symlink', 'artisan:migrate:force');
+after('deploy:failed', 'deploy:unlock');
+after('deploy', 'fpm:restart');
+after('fpm:restart', 'horizon:restart');
+after('fpm:restart', 'crontab:start');
