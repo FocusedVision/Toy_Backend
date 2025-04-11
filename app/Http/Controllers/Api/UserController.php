@@ -8,6 +8,7 @@ use App\Http\Resources\Pagination;
 use App\Http\Resources\Product as ProductResources;
 use App\Http\Resources\User as UserResources;
 use App\Models;
+use App\Models\NotificationSetting;
 use App\Services\DTO;
 use App\Services\User\UserService;
 use Illuminate\Http\Request;
@@ -105,5 +106,43 @@ class UserController extends Controller
         $result = $this->user_service->createPushToken($user, $request->token);
 
         return Response::send($result);
+    }
+
+    public function getNotification(Request $request)
+    {
+        $settings = $request->user()->notificationSettings;
+        
+        if (!$settings) {
+            $settings = $request->user()->notificationSettings()->create([
+                'is_enabled' => true,
+            ]);
+        }
+
+        return Response::send([
+            'is_enabled' => $settings->is_enabled,
+        ]);
+    }
+
+    public function updateNotification(Request $request)
+    {
+        $request->validate([
+            'is_enabled' => 'required|boolean',
+        ]);
+
+        $settings = $request->user()->notificationSettings;
+        
+        if (!$settings) {
+            $settings = $request->user()->notificationSettings()->create([
+                'is_enabled' => $request->is_enabled,
+            ]);
+        } else {
+            $settings->update([
+                'is_enabled' => $request->is_enabled,
+            ]);
+        }
+
+        return Response::send([
+            'is_enabled' => $settings->is_enabled,
+        ]);
     }
 }

@@ -2,8 +2,8 @@
 
 namespace Database\Seeders;
 
-use App\Enums;
-use App\Models;
+use App\Models\User; // Assuming you have a User model
+use App\Models\NotificationSetting;
 use Illuminate\Database\Seeder;
 
 class NotificationSettingSeeder extends Seeder
@@ -15,15 +15,14 @@ class NotificationSettingSeeder extends Seeder
      */
     public function run()
     {
-        $settings = [
-            [
-                'notification_type' => Enums\NotificationType::NEW_PRODUCT_LIVE,
-                'is_enabled' => true,
-            ],
-        ];
+        // Fetch all users to create default notification settings for each user
+        $users = User::all();
 
-        foreach ($settings as $setting) {
-            Models\NotificationSetting::create($setting);
+        foreach ($users as $user) {
+            NotificationSetting::create([
+                'user_id' => $user->id,
+                'is_enabled' => true, // Default value
+            ]);
         }
     }
 }

@@ -32,6 +32,12 @@ Route::prefix('/user')->controller('UserController')->middleware('auth:api')->na
         Route::get('/', 'getAvatars')->name('index');
     });
 
+    Route::prefix('/notification') ->name('notification')->group(function(){
+        Route::get('/', 'getNotification')->name('getNotification');
+        Route::post('/', 'updateNotification')->name('updateNotification');
+
+    });
+
     Route::prefix('/push-tokens')->name('push-tokens.')->group(function () {
         Route::post('/', 'createPushToken')->name('create');
     });

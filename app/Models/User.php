@@ -75,4 +75,9 @@ class User extends Authenticatable
     {
         return $this->hasMany(PushToken::class);
     }
+
+    public function notificationSettings()
+    {
+        return $this->hasOne(NotificationSetting::class);
+    }
 }
