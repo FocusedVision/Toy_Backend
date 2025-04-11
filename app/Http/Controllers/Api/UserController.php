@@ -115,6 +115,7 @@ class UserController extends Controller
         if (!$settings) {
             $settings = $request->user()->notificationSettings()->create([
                 'is_enabled' => true,
+                'notification_type' => \App\Enums\NotificationType::NEW_PRODUCT_LIVE,
             ]);
         }
 
@@ -134,6 +135,7 @@ class UserController extends Controller
         if (!$settings) {
             $settings = $request->user()->notificationSettings()->create([
                 'is_enabled' => $request->is_enabled,
+                'notification_type' => \App\Enums\NotificationType::NEW_PRODUCT_LIVE,
             ]);
         } else {
             $settings->update([

@@ -10,6 +10,7 @@ return new class extends Migration
     {
         Schema::create('notification_settings', function (Blueprint $table) {
             $table->id();
+            $table->tinyInteger('notification_type')->unique();
             $table->foreignId('user_id')->constrained()->cascadeOnDelete();
             $table->boolean('is_enabled')->default(true);
             $table->timestamps();
