@@ -94,6 +94,7 @@ class ProductRepository
 
         if ($product->isDirty()) {
             $product->save();
+            event(new \Illuminate\Database\Eloquent\Events\Updated($product));
         }
     }
 
