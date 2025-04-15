@@ -47,11 +47,14 @@ class PushMessage implements MessageContract
 
     public function getPayload(): array
     {
+        $notification = ['title' => $this->title ?? ''];
+        
+        if ($this->body !== null) {
+            $notification['body'] = $this->body;
+        }
+
         return [
-            'notification' => [
-                'title' => $this->title ?? '',
-                'body' => $this->body ?? '',
-            ],
+            'notification' => $notification,
             'android' => [
                 'priority' => 'high',
                 'notification' => [
