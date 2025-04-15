@@ -147,4 +147,32 @@ class UserController extends Controller
             'is_enabled' => $settings->is_enabled,
         ]);
     }
+
+    public function getWishlistShare(Request $request)
+    {
+        $user = $request->user();
+        $products = $user->products()
+            ->available()
+            ->get();
+            
+        $shareData = [
+            'id' => $user->id,
+            'products' => $products->map(function ($product) {
+                return [
+                    'id' => $product->id,
+                    'name' => $product->name,
+                    'image' => $product->image,
+                    'external_link' => $product->external_link
+                ];
+            })
+        ];
+        
+        // Generate a unique hash for this wishlist
+        $hash = base64_encode(json_encode($shareData));
+        
+        return Response::send([
+            'share_url' => config('app.url') . '/wishlist/' . $hash,
+            'products_count' => $products->count()
+        ]);
+    }
 }

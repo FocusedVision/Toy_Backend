@@ -40,6 +40,11 @@ Route::prefix('/user')->controller('UserController')->middleware('auth:api')->na
     Route::prefix('/push-tokens')->name('push-tokens.')->group(function () {
         Route::post('/', 'createPushToken')->name('create');
     });
+
+    Route::prefix('/wishlist')->name('wishlist')->group(function() {
+        Route::get('/share', 'getWishlistShare')->name('getWishlistShare');
+    });
+
 });
 
 Route::prefix('/products')->controller('ProductController')->middleware('auth:api')->name('products.')->group(function () {
