@@ -6,26 +6,17 @@ use Illuminate\Support\Facades\Schema;
 
 return new class extends Migration
 {
-    /**
-     * Run the migrations.
-     *
-     * @return void
-     */
     public function up()
     {
         Schema::create('notification_settings', function (Blueprint $table) {
             $table->id();
             $table->tinyInteger('notification_type')->unique();
-            $table->boolean('is_enabled')->index();
+            $table->foreignId('user_id')->constrained()->cascadeOnDelete();
+            $table->boolean('is_enabled')->default(true);
             $table->timestamps();
         });
     }
 
-    /**
-     * Reverse the migrations.
-     *
-     * @return void
-     */
     public function down()
     {
         Schema::dropIfExists('notification_settings');

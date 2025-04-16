@@ -12,22 +12,18 @@ class PushMessage implements MessageContract
     use Makeable;
 
     private ?string $title = null;
-
     private ?string $body = null;
-
     private array $data = [];
 
     public function title(string $title = null): self
     {
         $this->title = $title;
-
         return $this;
     }
 
     public function body(string $body = null): self
     {
         $this->body = $body;
-
         return $this;
     }
 
@@ -46,26 +42,38 @@ class PushMessage implements MessageContract
         }
 
         $this->data[$key] = $value;
-
         return $this;
     }
 
     public function getPayload(): array
     {
-        $content = [];
-
-        if ($this->title !== null) {
-            $content['notification']['title'] = $this->title;
-        }
-
+        $notification = ['title' => $this->title ?? ''];
+        
         if ($this->body !== null) {
-            $content['notification']['body'] = $this->body;
+            $notification['body'] = $this->body;
         }
 
-        if (! empty($this->data)) {
-            $content['data'] = $this->data;
-        }
-
-        return $content;
+        return [
+            'notification' => $notification,
+            'android' => [
+                'priority' => 'high',
+                'notification' => [
+                    'channel_id' => 'default',
+                    'sound' => 'default',
+                    'visibility' => 'public',
+                    'default_sound' => true,
+                    'default_vibrate_timings' => true,
+                ],
+            ],
+            'apns' => [
+                'payload' => [
+                    'aps' => [
+                        'sound' => 'default',
+                        'badge' => 1,
+                    ],
+                ],
+            ],
+            'data' => $this->data,
+        ];
     }
 }

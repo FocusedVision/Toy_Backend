@@ -1,16 +1,16 @@
 <?php
 
-return [
+declare(strict_types=1);
 
-    'default' => env('FIREBASE_PROJECT', 'app'),
+return [
+    'default' => env('FIREBASE_PROJECT', 'empettoy'),
 
     'projects' => [
-        'app' => [
-            'credentials' => [
-                'file' => env('FIREBASE_CREDENTIALS'),
-                'auto_discovery' => true,
+        'empettoy' => [
+            'credentials' => env('FIREBASE_CREDENTIALS'),
+            'database' => [
+                'url' => env('FIREBASE_DATABASE_URL'),
             ],
         ],
     ],
-
 ];

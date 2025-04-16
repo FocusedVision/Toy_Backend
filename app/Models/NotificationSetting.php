@@ -12,6 +12,7 @@ class NotificationSetting extends Model
 
     protected $fillable = [
         'notification_type',
+        'user_id',
         'is_enabled',
     ];
 

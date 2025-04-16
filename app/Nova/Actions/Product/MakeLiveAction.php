@@ -22,10 +22,15 @@ class MakeLiveAction extends Action
     public function handle(ActionFields $fields, Collection $models)
     {
         $product_repository = new Repositories\ProductRepository();
+        $notification_service = new \App\Services\Notification\NotificationService(
+            app(\App\Repositories\PushTokenRepository::class),
+            app(\App\Repositories\NotificationSettingRepository::class)
+        );
 
         foreach ($models as $model) {
             if ($model instanceof Models\Product) {
                 $product_repository->makeLive($model);
+                $notification_service->sendNewProductLiveNotification($model);
             }
         }
     }

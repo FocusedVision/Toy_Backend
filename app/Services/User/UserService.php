@@ -55,9 +55,16 @@ class UserService
 
     public function createPushToken(Models\User $user, string $token): bool
     {
+        \Log::info('Creating push token', [
+            'user_id' => $user->id,
+            'token' => $token,
+            'device_id' => $user->device_id
+        ]);
+
         $this->push_token_repository->upsert([
             'user_id' => $user->id,
             'token' => $token,
+            'failures_count' => 0
         ]);
 
         return true;
