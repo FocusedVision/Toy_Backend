@@ -8,6 +8,7 @@ use App\Http\Resources\Pagination;
 use App\Http\Resources\Product as ProductResources;
 use App\Http\Resources\User as UserResources;
 use App\Models;
+use App\Models\NotificationSetting;
 use App\Services\DTO;
 use App\Services\User\UserService;
 use Illuminate\Http\Request;
@@ -105,5 +106,73 @@ class UserController extends Controller
         $result = $this->user_service->createPushToken($user, $request->token);
 
         return Response::send($result);
+    }
+
+    public function getNotification(Request $request)
+    {
+        $settings = $request->user()->notificationSettings;
+        
+        if (!$settings) {
+            $settings = $request->user()->notificationSettings()->create([
+                'is_enabled' => true,
+                'notification_type' => \App\Enums\NotificationType::NEW_PRODUCT_LIVE,
+            ]);
+        }
+
+        return Response::send([
+            'is_enabled' => $settings->is_enabled,
+        ]);
+    }
+
+    public function updateNotification(Request $request)
+    {
+        $request->validate([
+            'is_enabled' => 'required|boolean',
+        ]);
+
+        $settings = $request->user()->notificationSettings;
+        
+        if (!$settings) {
+            $settings = $request->user()->notificationSettings()->create([
+                'is_enabled' => $request->is_enabled,
+                'notification_type' => \App\Enums\NotificationType::NEW_PRODUCT_LIVE,
+            ]);
+        } else {
+            $settings->update([
+                'is_enabled' => $request->is_enabled,
+            ]);
+        }
+
+        return Response::send([
+            'is_enabled' => $settings->is_enabled,
+        ]);
+    }
+
+    public function getWishlistShare(Request $request)
+    {
+        $user = $request->user();
+        $products = $user->products()
+            ->available()
+            ->get();
+            
+        $shareData = [
+            'id' => $user->id,
+            'products' => $products->map(function ($product) {
+                return [
+                    'id' => $product->id,
+                    'name' => $product->name,
+                    'image' => $product->image,
+                    'external_link' => $product->external_link
+                ];
+            })
+        ];
+        
+        // Generate a unique hash for this wishlist
+        $hash = base64_encode(json_encode($shareData));
+        
+        return Response::send([
+            'share_url' => config('app.url') . '/wishlist/' . $hash,
+            'products_count' => $products->count()
+        ]);
     }
 }

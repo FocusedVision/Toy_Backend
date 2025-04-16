@@ -35,7 +35,6 @@ class NewProductLiveNotification extends AbstractNotification implements Contrac
     {
         return Messages\PushMessage::make()
             ->title(__('New toy available!'))
-            ->body(__('Click to view it'))
             ->data('type', Enums\NotificationType::NEW_PRODUCT_LIVE)
             ->data('product_id', $this->product->id);
     }
