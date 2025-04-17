@@ -18,3 +18,9 @@ Route::get('/', 'IndexController@index');
 Route::get('/{page:slug}', 'IndexController@getPage')->name('page.index');
 
 Route::get('/away/{link}', 'IndexController@awayProxy')->name('away');
+
+Route::get('/wishlist/{encoded_data}', 'WishlistController@show')->name('wishlist.show');
+
+Route::get('/wishlist/{encoded_data}', 'WishlistController@show')->name('wishlist.show');
+Route::get('/.well-known/apple-app-site-association', 'DeepLinkController@apple');
+Route::get('/.well-known/assetlinks.json', 'DeepLinkController@android');
